@@ -2,12 +2,15 @@
 
 import Link from 'next/link';
 import { sidebarLinks } from '@/constants/index';
+import { SignedIn, SignOutButton } from '@clerk/nextjs';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 interface LeftSidebarProps {
-  isOpen?: boolean;  
+  isOpen?: boolean;
 }
 
-const LeftSidebar = ({ isOpen = true }: LeftSidebarProps) => {  // Default to true for larger screens
+const LeftSidebar = ({ isOpen = true }: LeftSidebarProps) => {
   return (
     <aside
       className={`leftsidebar
@@ -25,6 +28,22 @@ const LeftSidebar = ({ isOpen = true }: LeftSidebarProps) => {  // Default to tr
           </li>
         ))}
       </ul>
+      <div className=' hidden md:block'>
+        <SignedIn>
+          <SignOutButton redirectUrl='/sign-in'>
+            <div className='flex cursor-pointer ml-2 '>
+              <Image
+                src='/assets/logout.svg'
+                alt='logout'
+                width={24}
+                height={24}
+                className='mr-3 hidden md:block'
+              />
+              SignOut
+            </div>
+          </SignOutButton>
+        </SignedIn>
+      </div>
     </aside>
   );
 };

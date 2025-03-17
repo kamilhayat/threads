@@ -3,6 +3,10 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { sidebarLinks } from '@/constants/index';
+import { OrganizationSwitcher, SignedIn, SignOutButton } from '@clerk/nextjs';
+import Image from 'next/image';
+import { dark } from '@clerk/themes';
+
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -14,18 +18,22 @@ function Navbar() {
     <>
       <nav className='navbar'>
         <Link href='/' className='flex items-center gap-4'>
-          <img
-            src='https://kamilportfolio.netlify.app/static/media/logo5.17d7834b95fa69b4e1d4.png'
+          <Image
+            src='/assets/Black_and_Blue_Initials_Creative_Logo__1_-removebg-preview.png'
             alt='logo'
-            width={32}
-            height={32}
+            width={40}
+            height={45}
           />
-          <p className='text-heading3-bold text-light-1 max-md:hidden'>
-            Threads
-          </p>
         </Link>
+        <OrganizationSwitcher
+          appearance={{
+            baseTheme: dark,
+            elements: {
+              organizationSwitcherTrigger: 'py-2 px-4',
+            },
+          }}
+        />
 
-        {/* Hamburger Icon (Mobile) */}
         <button className='md:hidden' onClick={toggleSidebar}>
           {isOpen ? (
             <X size={28} className='text-white' />
@@ -35,7 +43,6 @@ function Navbar() {
         </button>
       </nav>
 
-      {/* Mobile Sidebar - Shows only when isOpen is true */}
       {isOpen && (
         <div className='absolute top-14 left-0 w-full bg-gray-900 p-4 shadow-lg md:hidden'>
           <ul>
@@ -51,6 +58,20 @@ function Navbar() {
                 </Link>
               </li>
             ))}
+            <SignedIn>
+              <SignOutButton>
+                <div className='flex cursor-pointer ml-2 py-2 text-white '>
+                  <Image
+                    src='/assets/logout.svg'
+                    alt='logout'
+                    width={24}
+                    height={24}
+                    className='mr-3'
+                  />
+                  SignOut
+                </div>
+              </SignOutButton>
+            </SignedIn>
           </ul>
         </div>
       )}

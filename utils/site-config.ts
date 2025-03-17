@@ -25,3 +25,4 @@ export const siteConfig = {
     { name: 'Instagram', url: 'https://www.instagram.com/yourusername', icon: FaInstagram },
   ],
 };
+

@@ -46,3 +46,39 @@ export const communityTabs = [
     { value: "members", label: "Members", icon: "/assets/members.svg" },
     { value: "requests", label: "Requests", icon: "/assets/request.svg" },
 ];
+
+export const footerlinks = [
+    {
+
+        route: "/",
+        label: "About",
+    },
+    {
+
+        route: "/privacy-policy",
+        label: "PRivacy Policy",
+    },
+    {
+        icon: Activity,
+        route: "/contact-us",
+        label: "Contact-us",
+    },
+    {
+        icon: MdOutlineCreateNewFolder,
+        route: "/terms-of-service",
+        label: "Terms of Service",
+    },
+
+];
+
+export const footerlinksApp = [
+
+    { label: 'About', route: '/' },
+    { label: 'Contact', route: '/' },
+    { label: 'Privacy Policy', route: '/' },
+    { label: 'Terms & Conditions', route: '/' },
+    { label: 'Book Appointment', route: '/' },
+    { label: 'Help & FAQs', route: '/' },
+
+
+];
