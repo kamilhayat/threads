@@ -1,21 +1,27 @@
 import AccountProfile from '@/components/forms/AccountProfile';
 import React from 'react';
 import { currentUser } from '@clerk/nextjs/server';
+import { fetchUser } from '@/lib/actions/user.action';
 
 const page = async () => {
   const user = await currentUser();
-
-  // Simulated `userInfo` - Replace with your actual DB fetch logic
-  const userInfo = null; // Fetch user from your database
+  if (!user) {
+    return (
+      <p className='text-center text-white'>User not found. Please log in.</p>
+    );
+  }
+  const userInfo = await fetchUser(user.id);
+  console.log('Fetched User Info:', userInfo);
 
   const userData = {
     id: user.id,
-    objectId: userInfo?._id ?? '',
-    username: userInfo?.username || user.username || user.email?.split('@')[0] || '',
+    objectId: userInfo?._id?.toString() ?? '',
+    username:userInfo?.username || user.username || '',
     name: userInfo?.name || user.firstName || '',
     bio: userInfo?.bio || '',
     image: userInfo?.image || user.imageUrl || '/assets/profile.svg',
   };
+  // console.log('from onboaring page',userData)
 
   return (
     <main className='mx-auto flex max-w-3xl flex-col justify-start px-10 py-20'>

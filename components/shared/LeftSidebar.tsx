@@ -21,7 +21,7 @@ const LeftSidebar = ({ isOpen = true }: LeftSidebarProps) => {
           <li key={index}>
             <Link href={link.route} className='sidebar-link'>
               <div className='flex items-center gap-3 p-2 mt-4 hover:bg-gray-800 rounded-xl'>
-                <link.icon className='w-6 h-6' />
+                <link.icon className='w-6 h-6' aria-label={link.label} />
                 <span className='hidden md:inline'>{link.label}</span>
               </div>
             </Link>

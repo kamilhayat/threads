@@ -3,8 +3,8 @@
 import * as z from 'zod';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
-import { ChangeEvent, useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ChangeEvent, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -18,15 +18,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+
 import { useUploadThing } from '@/lib/uploadthing';
 import { isBase64Image } from '@/lib/utils';
-import { userValidation } from '@/lib/validations/user';
 
-interface AccountProfileProps {
+import { userValidation } from '@/lib/validations/user';
+import { updateUser } from '@/lib/actions/user.action';
+
+interface Props {
   user: {
     id: string;
     objectId: string;
-    email?: string; // Added in case username is missing
     username: string;
     name: string;
     bio: string;
@@ -35,20 +37,60 @@ interface AccountProfileProps {
   btnTitle: string;
 }
 
-const AccountProfile = ({ user, btnTitle }: AccountProfileProps) => {
-  const [files, setFiles] = useState<File[]>([]);
+const AccountProfile = ({ user, btnTitle }: Props) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const { startUpload } = useUploadThing('media');
 
-  // Default values from Google login, allowing user to manually update
-  const form = useForm({
+  const [files, setFiles] = useState<File[]>([]);
+
+  const form = useForm<z.infer<typeof userValidation>>({
     resolver: zodResolver(userValidation),
     defaultValues: {
-      profile_photo: user?.image || '/assets/profile.svg', // Use Google image if available
-      name: user?.name || '', // Use Google name if available
-      username: user?.username || user?.email?.split('@')[0] || '', // Use email prefix if username missing
-      bio: user?.bio || '', // Bio must be manually entered
+      profile_photo: user?.image ? user.image : '',
+      name: user?.name ? user.name : '',
+      username: user?.username ? user.username : '',
+      bio: user?.bio ? user.bio : '',
     },
   });
+  console.log('Form State Errors:', form.formState.errors);
+
+  const onSubmit = async (values: z.infer<typeof userValidation>) => {
+    console.log('🚀 Form Submitted!');
+    console.log('🚀 Form Submitted! Values:', values);
+    const blob = values.profile_photo;
+
+    const hasImageChanged = isBase64Image(blob);
+    if (hasImageChanged) {
+      console.log('Uploading file:', files);
+      const imgRes = await startUpload(files);
+
+      console.log('Upload Response:', imgRes);
+
+      if (imgRes && imgRes[0]?.url) {
+        // Check if 'url' or another key contains the URL
+        values.profile_photo = imgRes[0].url;
+        console.log('New Profile Photo URL:', values.profile_photo);
+      } else {
+        console.error('Upload failed or file URL missing.');
+      }
+    }
+
+    await updateUser({
+      name: values.name,
+      path: pathname,
+      username: values.username,
+      userId: user.id,
+      bio: values.bio,
+      image: values.profile_photo,
+    });
+
+    if (pathname === '/profile/edit') {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
 
   const handleImage = (
     e: ChangeEvent<HTMLInputElement>,
@@ -73,43 +115,36 @@ const AccountProfile = ({ user, btnTitle }: AccountProfileProps) => {
     }
   };
 
-  const onSubmit = async (values: z.infer<typeof userValidation>) => {
-    const blob = values.profile_photo;
-
-    const hasImageChanged = isBase64Image(blob);
-    if (hasImageChanged) {
-      const imgRes = await startUpload(files);
-
-      if (imgRes && imgRes[0].url) {
-        values.profile_photo = imgRes[0].url;
-      }
-    }
-
-    // TODO: Submit updated user data to your backend
-    console.log('Updated Profile:', values);
-  };
-
   return (
     <Form {...form}>
       <form
         className='flex flex-col justify-start gap-10'
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        {/* Profile Photo */}
         <FormField
           control={form.control}
           name='profile_photo'
           render={({ field }) => (
             <FormItem className='flex items-center gap-4'>
               <FormLabel className='account-form_image-label'>
-                <Image
-                  src={field.value}
-                  alt='profile_icon'
-                  width={96}
-                  height={96}
-                  priority
-                  className='rounded-full object-contain'
-                />
+                {field.value ? (
+                  <Image
+                    src={field.value}
+                    alt='profile_icon'
+                    width={96}
+                    height={96}
+                    priority
+                    className='rounded-full object-contain'
+                  />
+                ) : (
+                  <Image
+                    src='/assets/profile.svg'
+                    alt='profile_icon'
+                    width={24}
+                    height={24}
+                    className='object-contain'
+                  />
+                )}
               </FormLabel>
               <FormControl className='flex-1 text-base-semibold text-gray-200'>
                 <Input
@@ -124,7 +159,6 @@ const AccountProfile = ({ user, btnTitle }: AccountProfileProps) => {
           )}
         />
 
-        {/* Name Field */}
         <FormField
           control={form.control}
           name='name'
@@ -145,7 +179,6 @@ const AccountProfile = ({ user, btnTitle }: AccountProfileProps) => {
           )}
         />
 
-        {/* Username Field */}
         <FormField
           control={form.control}
           name='username'
@@ -166,7 +199,6 @@ const AccountProfile = ({ user, btnTitle }: AccountProfileProps) => {
           )}
         />
 
-        {/* Bio Field (Manually Entered) */}
         <FormField
           control={form.control}
           name='bio'
@@ -187,7 +219,6 @@ const AccountProfile = ({ user, btnTitle }: AccountProfileProps) => {
           )}
         />
 
-        {/* Submit Button */}
         <Button type='submit' className='bg-primary-500'>
           {btnTitle}
         </Button>
