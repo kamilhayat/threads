@@ -7,8 +7,6 @@ import { fetchThreadById } from '@/lib/actions/thread.action';
 import CommentForm from '@/components/forms/CommentForm';
 
 const Page = async ({ params }: { params: { id: string } }) => {
-  if (!params) return null;
-
   const user = await currentUser();
   if (!user) return null;
 
@@ -20,26 +18,22 @@ const Page = async ({ params }: { params: { id: string } }) => {
 
   return (
     <section className='relative flex flex-col gap-4'>
-      <div>
-        <ThreadCard
-          key={thread._id}
-          id={thread._id}
-          currentUserId={user.id} // ✅ FIXED: now matching the prop name
-          content={thread.text}
-          author={thread.author}
-          createdAt={thread.createdAt}
-          parentId={thread.parentId}
-          comments={thread.children}
-        />
-      </div>
+      <ThreadCard
+        key={thread._id}
+        id={thread._id}
+        currentUserId={user.id}
+        content={thread.text}
+        author={thread.author}
+        createdAt={thread.createdAt}
+        parentId={thread.parentId}
+        comments={thread.children}
+      />
 
-      <div>
-        <CommentForm
-          threadId={thread.id}
-          currentUserImg={userInfo.image}
-          currentUserId={JSON.stringify(userInfo._id)}
-        />
-      </div>
+      <CommentForm
+        threadId={thread.id}
+        currentUserImg={userInfo.image}
+        currentUserId={JSON.stringify(userInfo._id)}
+      />
 
       <div className='mt-10'>
         {thread.children.map((childItem: any) => (

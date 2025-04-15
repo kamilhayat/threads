@@ -81,7 +81,7 @@ export async function fetchAllThread(pageNumber = 1, pageSize = 20) {
   
 
 export async function fetchThreadById(threadId: string) {
-    await connectToDB()
+     connectToDB()
     try {
         const thread = await Thread.findById(threadId.toString())
             .populate({

@@ -6,22 +6,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { profileTabs } from '@/constants';
 import Image from 'next/image';
 import ThreadsTab from '@/components/shared/ThreadsTab';
-console.log('🔥 Profile Page file loaded');
 
 export default async function Page({ params }: { params: { id: string } }) {
-  console.log('Raw Params:', params);
-  console.log('params.id:', params.id);
-
   const userInfo = await fetchUser(params.id);
   const user = await currentUser();
 
   if (!user) {
-    console.log('❌ No user from Clerk');
     return <div>No user found.</div>;
   }
 
   if (!userInfo) {
-    console.log('❌ No userInfo from DB');
     return <div>No user info found in DB.</div>;
   }
 

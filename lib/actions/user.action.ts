@@ -158,3 +158,48 @@ export async function fetchAllUser({
     }
 
 }
+
+export async function getActivity(userId: string) {
+    try {
+      await connectToDB();
+      console.log("Connected to DB");
+  
+      // Step 1: Find all threads created by the user
+      const userThreads = await Thread.find({ author: userId });
+      console.log("User Threads:", userThreads);
+  
+      // Step 2: Collect all child thread IDs from 'children' fields
+      const childThreadIds = userThreads.reduce((acc, userThread) => {
+        if (Array.isArray(userThread.children)) {
+          return acc.concat(userThread.children);
+        }
+        return acc;
+      }, []);
+      console.log("Collected Child Thread IDs:", childThreadIds);
+  
+      if (childThreadIds.length === 0) {
+        console.log("No child threads found (no replies to user's threads)");
+        return [];
+      }
+  
+      // Step 3: Find the child threads (replies), excluding those by the same user
+      const replies = await Thread.find({
+        _id: { $in: childThreadIds },
+        author: { $ne: userId }, // Exclude self-replies
+      })
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "author",
+          model: User,
+          select: "name image _id",
+        });
+  
+      console.log("Replies Found:", replies);
+  
+      return replies;
+    } catch (error) {
+      console.error("Error fetching replies: ", error);
+      return []; // Return an empty array instead of throwing, to prevent crashing the UI
+    }
+  }
+  
