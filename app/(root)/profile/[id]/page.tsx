@@ -6,19 +6,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { profileTabs } from '@/constants';
 import Image from 'next/image';
 import ThreadsTab from '@/components/shared/ThreadsTab';
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
 
-export default async function Page({ params }: { params: { id: string } }) {
+function Page({ params }: PageProps) {
+  return (
+    <AsyncPage params={params} />
+  );
+}
+
+export default Page;
+
+async function AsyncPage({ params }: PageProps) {
   const userInfo = await fetchUser(params.id);
   const user = await currentUser();
 
-  if (!user) {
-    return <div>No user found.</div>;
-  }
-
-  if (!userInfo) {
-    return <div>No user info found in DB.</div>;
-  }
-
+  if (!user) return <div>No user found.</div>;
+  if (!userInfo) return <div>No user info found in DB.</div>;
   if (!userInfo?.onboarded) redirect('/onboarding');
 
   return (
@@ -52,6 +59,7 @@ export default async function Page({ params }: { params: { id: string } }) {
               </TabsTrigger>
             ))}
           </TabsList>
+
           {profileTabs.map((tab) => (
             <TabsContent
               key={`content${tab.label}`}

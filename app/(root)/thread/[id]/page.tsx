@@ -6,7 +6,19 @@ import { redirect } from 'next/navigation';
 import { fetchThreadById } from '@/lib/actions/thread.action';
 import CommentForm from '@/components/forms/CommentForm';
 
-const Page = async ({ params }: { params: { id: string } }) => {
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+// Default export is now sync, no async arrow function here
+export default function ThreadPageWrapper({ params }: PageProps) {
+  return <ThreadPage params={params} />;
+}
+
+// Async logic lives here
+async function ThreadPage({ params }: PageProps) {
   const user = await currentUser();
   if (!user) return null;
 
@@ -52,6 +64,4 @@ const Page = async ({ params }: { params: { id: string } }) => {
       </div>
     </section>
   );
-};
-
-export default Page;
+}
