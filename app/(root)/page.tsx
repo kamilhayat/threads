@@ -3,22 +3,21 @@ import { fetchAllThread } from '@/lib/actions/thread.action';
 import { currentUser } from '@clerk/nextjs/server';
 import ThreadCard from '@/components/cards/ThreadCard';
 const page = async () => {
-  const { posts, isNext } = await fetchAllThread(1, 20)
+  const { posts, isNext } = await fetchAllThread(1, 20);
   const user = await currentUser();
-  // console.log(posts);
+  console.log(posts);
   return (
     <>
-      <h1 className='text-white'>home</h1>
       <section className='flex flex-col gap-4'>
-        {posts.length===0 ?(
+        {posts.length === 0 ? (
           <p>No threads found</p>
-        ):(
+        ) : (
           <>
-            {posts.map((post)=>(
-              <ThreadCard 
+            {posts.map((post) => (
+              <ThreadCard
                 key={post._id}
                 id={post._id}
-                currentUser={user?.id || ''}
+                currentUserId={user?.id || ''}
                 content={post.text}
                 author={post.author}
                 createdAt={post.createdAt}

@@ -15,16 +15,18 @@ import {
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ThreadValidation } from '@/lib/validations/threads';
+// import { ThreadValidation } from '@/lib/validations/threads';
 import { fetchUser, updateUser } from '@/lib/actions/user.action';
 import { currentUser } from '@clerk/nextjs/server';
 import { useOrganization } from '@clerk/nextjs';
+import { createThread } from '@/lib/actions/thread.action';
+import { ThreadValidation } from '@/lib/validations/thread';
 // import { createThread } from '@/lib/actions/thread.action';
-// import createthread from 
+// import createthread from
 interface PostThreadsProps {
   userId: string;
 }
-const PostThread = ({ userId }: PostThreadsProps ) => {
+const PostThread = ({ userId }: PostThreadsProps) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -38,17 +40,15 @@ const PostThread = ({ userId }: PostThreadsProps ) => {
     },
   });
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
-    console.log('🚀 Form Submitted!');
     console.log('🚀 Form Submitted! Values:', values);
-    // await createThread({
-    //   text: values.thread,
-    //   author: userId,
-    //   communityId: organization ? organization.id : null,
-    //   path: pathname,
-    // });
-   
-      router.push('/');
-   
+    await createThread({
+      text: values.thread,
+      author: userId,
+      // communityId: undefined,
+      path: pathname,
+    });
+
+    router.push('/');
   };
   return (
     <Form {...form}>

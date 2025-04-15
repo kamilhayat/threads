@@ -1,11 +1,19 @@
 'use client';
 import Link from 'next/link';
 import { sidebarLinks } from '@/constants/index';
-import { OrganizationSwitcher, SignedIn, SignOutButton } from '@clerk/nextjs';
+import {
+  OrganizationSwitcher,
+  SignedIn,
+  SignOutButton,
+  useUser,
+} from '@clerk/nextjs';
 import Image from 'next/image';
 import { dark } from '@clerk/themes';
+import { usePathname } from 'next/navigation';
 
 function Navbar() {
+  const { user } = useUser();
+  const pathname = usePathname();
   return (
     <>
       <nav className='navbar'>
@@ -29,15 +37,24 @@ function Navbar() {
 
       {/* Bottom Navigation for Mobile */}
       <div className='fixed bottom-0 left-0 w-full bg-gray-900 p-3 flex justify-around items-center border-t border-gray-700 z-50 md:hidden'>
-        {sidebarLinks.map((link, index) => (
-          <Link
-            key={index}
-            href={link.route}
-            className='flex flex-col items-center text-white'
-          >
-            <link.icon className='w-6 h-6' aria-label={link.label} />
-          </Link>
-        ))}
+        {sidebarLinks.map((link, index) => {
+          const href =
+            link.route === '/profile' && user?.id
+              ? `${link.route}/${user.id}`
+              : link.route;
+          const isActive = pathname === href;
+          return (
+            <Link
+              key={index}
+              href={href}
+              className={`flex flex-col items-center text-white ${
+                isActive ? 'text-blue-500' : 'text-white'
+              }`}
+            >
+              <link.icon className='w-6 h-6' aria-label={link.label} />
+            </Link>
+          );
+        })}
       </div>
     </>
   );

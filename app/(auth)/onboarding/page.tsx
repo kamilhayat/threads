@@ -2,6 +2,7 @@ import AccountProfile from '@/components/forms/AccountProfile';
 import React from 'react';
 import { currentUser } from '@clerk/nextjs/server';
 import { fetchUser } from '@/lib/actions/user.action';
+import { redirect } from 'next/navigation';
 
 const page = async () => {
   const user = await currentUser();
@@ -11,6 +12,8 @@ const page = async () => {
     );
   }
   const userInfo = await fetchUser(user.id);
+  if (userInfo?.onboarded) redirect('/');
+
   console.log('Fetched User Info:', userInfo);
 
   const userData = {
@@ -20,6 +23,7 @@ const page = async () => {
     name: userInfo?.name || user.firstName || '',
     bio: userInfo?.bio || '',
     image: userInfo?.image || user.imageUrl || '/assets/profile.svg',
+    onboarded: userInfo?.onboarding || false,
   };
   // console.log('from onboaring page',userData)
 

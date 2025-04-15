@@ -22,8 +22,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { useUploadThing } from '@/lib/uploadthing';
 import { isBase64Image } from '@/lib/utils';
 
-import { userValidation } from '@/lib/validations/user';
+// import { userValidation } from '@/lib/validations/user';
 import { updateUser } from '@/lib/actions/user.action';
+import { UserValidation } from '@/lib/validations/user';
 
 interface Props {
   user: {
@@ -33,6 +34,7 @@ interface Props {
     name: string;
     bio: string;
     image: string;
+    onboarded: boolean;
   };
   btnTitle: string;
 }
@@ -44,8 +46,8 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
 
   const [files, setFiles] = useState<File[]>([]);
 
-  const form = useForm<z.infer<typeof userValidation>>({
-    resolver: zodResolver(userValidation),
+  const form = useForm<z.infer<typeof UserValidation>>({
+    resolver: zodResolver(UserValidation),
     defaultValues: {
       profile_photo: user?.image ? user.image : '',
       name: user?.name ? user.name : '',
@@ -53,24 +55,20 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       bio: user?.bio ? user.bio : '',
     },
   });
-  console.log('Form State Errors:', form.formState.errors);
+  // console.log('Form State Errors:', form.formState.errors);
 
-  const onSubmit = async (values: z.infer<typeof userValidation>) => {
-    console.log('🚀 Form Submitted!');
-    console.log('🚀 Form Submitted! Values:', values);
+  const onSubmit = async (values: z.infer<typeof UserValidation>) => {
+    // console.log('🚀 Form Submitted! Values:', values);
     const blob = values.profile_photo;
 
     const hasImageChanged = isBase64Image(blob);
     if (hasImageChanged) {
-      console.log('Uploading file:', files);
       const imgRes = await startUpload(files);
 
-      console.log('Upload Response:', imgRes);
 
       if (imgRes && imgRes[0]?.url) {
         // Check if 'url' or another key contains the URL
         values.profile_photo = imgRes[0].url;
-        console.log('New Profile Photo URL:', values.profile_photo);
       } else {
         console.error('Upload failed or file URL missing.');
       }
@@ -83,6 +81,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       userId: user.id,
       bio: values.bio,
       image: values.profile_photo,
+      // onboarded: true,a
     });
 
     if (pathname === '/profile/edit') {
