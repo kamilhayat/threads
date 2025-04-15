@@ -1,24 +1,29 @@
+import { currentUser } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
+import { fetchUser } from '@/lib/actions/user.action';
+import { fetchCommunities } from '@/lib/actions/community.actions';
 import CommunityCard from '@/components/cards/CommunityCard';
 import SearchBar from '@/components/shared/SearchBar';
-import { fetchCommunities } from '@/lib/actions/community.actions';
-import { fetchUser } from '@/lib/actions/user.action';
-import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import Pagination from '@/components/shared/Pagination';
 
-async function Page({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | undefined };
-}) {
+interface PageProps {
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+export default async function Page({ searchParams }: PageProps) {
   const user = await currentUser();
   if (!user) return null;
 
   const userInfo = await fetchUser(user.id);
   if (!userInfo?.onboarded) redirect('/onboarding');
 
+  const search = typeof searchParams.q === 'string' ? searchParams.q : '';
+  const page =
+    typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
+
   const result = await fetchCommunities({
-    searchString: searchParams.q,
-    pageNumber: searchParams?.page ? +searchParams.page : 1,
+    searchString: search,
+    pageNumber: page,
     pageSize: 25,
   });
 
@@ -50,13 +55,11 @@ async function Page({
         )}
       </section>
 
-      {/* <Pagination
+      <Pagination
         path='communities'
-        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        pageNumber={page}
         isNext={result.isNext}
-      /> */}
+      />
     </>
   );
 }
-
-export default Page;

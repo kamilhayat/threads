@@ -114,6 +114,7 @@ export async function fetchCommunities({
   pageSize?: number;
   sortBy?: SortOrder;
 }) {
+  
   try {
     connectToDB();
 

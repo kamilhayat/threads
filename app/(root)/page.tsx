@@ -21,8 +21,8 @@ const page = async () => {
                 content={post.text}
                 author={post.author}
                 createdAt={post.createdAt}
-                // community={post.community}
-                // parentId={post.parentId}
+                community={post.community}
+                parentId={post.parentId}
                 comments={post.children}
               />
             ))}

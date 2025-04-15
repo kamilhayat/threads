@@ -40,13 +40,21 @@ const PostThread = ({ userId }: PostThreadsProps) => {
     },
   });
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
-    console.log('🚀 Form Submitted! Values:', values);
-    await createThread({
-      text: values.thread,
-      author: userId,
-      // communityId: undefined,
-      path: pathname,
-    });
+    if (!organization) {
+      await createThread({
+        text: values.thread,
+        author: userId,
+        communityId: null,
+        path: pathname,
+      });
+    }else{
+      await createThread({
+        text: values.thread,
+        author: userId,
+        communityId: organization.id,
+        path: pathname,
+      });
+    }
 
     router.push('/');
   };

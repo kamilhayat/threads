@@ -36,6 +36,7 @@ async function ThreadPage({ params }: PageProps) {
         currentUserId={user.id}
         content={thread.text}
         author={thread.author}
+        community={thread.community}
         createdAt={thread.createdAt}
         parentId={thread.parentId}
         comments={thread.children}
@@ -56,6 +57,8 @@ async function ThreadPage({ params }: PageProps) {
             parentId={childItem.parentId}
             content={childItem.text}
             author={childItem.author}
+            community={childItem.community}
+
             createdAt={childItem.createdAt}
             comments={childItem.children}
             isComment

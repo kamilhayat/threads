@@ -5,46 +5,45 @@ import Thread from '../models/thread.model';
 import User from '../models/user.model';
 import { connectToDB } from '../mongoose';
 import mongoose from 'mongoose';
+import Community from '../models/community.model';
 
 interface Params {
     text: string;
     author: string;
-    // communityId: string;
+    communityId: string | null;
     path: string;
 }
 
-export async function createThread({ text, author, path }: Params) {
+export async function createThread({ text, author, communityId, path }: Params) {
     try {
-        connectToDB();
-
-        // const communityIdObject = await Community.findOne(
-        //     { id: communityId },
-        //     { _id: 1 }
-        // );
-
-        const createdThread = await Thread.create({
-            text,
-            author,
-            // communityId:null, // Assign communityId if provided, or leave it null for personal account
+      connectToDB();
+  
+      const communityIdObject = await Community.findOne(
+        { id: communityId },
+        { _id: 1 }
+      );
+  
+      const createdThread = await Thread.create({
+        text,
+        author,
+        community: communityIdObject,
+      });
+  
+      await User.findByIdAndUpdate(author, {
+        $push: { threads: createdThread._id },
+      });
+  
+      if (communityIdObject) {
+        await Community.findByIdAndUpdate(communityIdObject, {
+          $push: { threads: createdThread._id },
         });
-
-        // Update User model
-        await User.findByIdAndUpdate(author, {
-            $push: { threads: createdThread._id },
-        });
-
-        // if (communityIdObject) {
-        //     // Update Community model
-        //     await Community.findByIdAndUpdate(communityIdObject, {
-        //         $push: { threads: createdThread._id },
-        //     });
-        // }
-
-        revalidatePath(path);
+      }
+  
+      revalidatePath(path);
     } catch (error: any) {
-        throw new Error(`Failed to create thread: ${error.message}`);
+      throw new Error(`Failed to create thread: ${error.message}`);
     }
-}
+  }
 
 export async function fetchAllThread(pageNumber = 1, pageSize = 20) {
     await connectToDB();
