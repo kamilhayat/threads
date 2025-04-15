@@ -34,7 +34,7 @@ const SearchBar = ({ routeType }: SearchBarProps) => {
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
         placeholder={`${
-          routeType !== "/search" ? "Search User" : "Search creators"
+          routeType !== "/search" ? "Search Communities" : "Search creators"
         }`}
         className='no-focus searchbar_input'
       />
